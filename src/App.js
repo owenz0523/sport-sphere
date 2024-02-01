@@ -40,7 +40,7 @@ function App() {
         setProfile(null);
     };
 
-    //used to post user data to DJANO
+    //used to post user data to DJANGO
     function postData (data){
       const address = "http://localhost:8000/api/google-login"
       axios.post(address, data)

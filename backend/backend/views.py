@@ -26,6 +26,12 @@ def google_login(request):
         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 def sendToDB(data):
+    existing_user =  userinfo.objects.filter(email=data['email']).first()
+    if existing_user:
+        existing_user.last_login = timezone.now()
+        existing_user.save()
+        return {'message': 'User already exists'}
+
     # Create a new UserInfo instance and set its fields
     new_entry = userinfo(
         email=data['email'],
