@@ -21,4 +21,6 @@ from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/google-login', views.google_login, name='google-login'),
+    path('api/get-nhl', views.get_nhl, name='get-nhl'),
+    path('api/get-follow', views.get_follow, name='get-follows'),
 ]

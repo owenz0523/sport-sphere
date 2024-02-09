@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { googleLogout, useGoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
+import Dashboard from './Dashboard'; // Import Dashboard component
 
 function App() {
     const [ user, setUser ] = useState([]);
@@ -65,6 +66,7 @@ function App() {
                     <h3>User Logged in</h3>
                     <p>Name: {profile.name}</p>
                     <p>Email Address: {profile.email}</p>
+                    <Dashboard></Dashboard>
                     <br />
                     <br />
                     <button onClick={logOut}>Log out</button>
