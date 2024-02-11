@@ -41,25 +41,26 @@ def get_nhl(request):
             name = game['name']
             short_name = game['shortName']
             status = game['status']
+            print(status)
             home_team = game['competitions'][0]['competitors'][0]['team']['displayName']
             away_team = game['competitions'][0]['competitors'][1]['team']['displayName']
-            if (home_team in teams) or (away_team in teams):
-                home_score = game['competitions'][0]['competitors'][0]['score']
-                away_score = game['competitions'][0]['competitors'][1]['score']
-                home_team_record = game['competitions'][0]['competitors'][0]['records'][0]['summary']
-                away_team_record = game['competitions'][0]['competitors'][1]['records'][0]['summary']
-                games.append({
-                    'name' : name,
-                    'short_name' : short_name,
-                    'status' : status,
-                    'ht_record' : home_team_record,
-                    'at_record' : away_team_record,
-                    'home_team': home_team,
-                    'away_team': away_team,
-                    'home_score': home_score,
-                    'away_score': away_score
+            #if (home_team in teams) or (away_team in teams):
+            home_score = game['competitions'][0]['competitors'][0]['score']
+            away_score = game['competitions'][0]['competitors'][1]['score']
+            home_team_record = game['competitions'][0]['competitors'][0]['records'][0]['summary']
+            away_team_record = game['competitions'][0]['competitors'][1]['records'][0]['summary']
+            games.append({
+                'name' : name,
+                'short_name' : short_name,
+                'status' : status,
+                'ht_record' : home_team_record,
+                'at_record' : away_team_record,
+                'home_team': home_team,
+                'away_team': away_team,
+                'home_score': home_score,
+                'away_score': away_score
 
-                })
+            })
         
         # Return the scores as JSON response
         return JsonResponse(games, safe=False)

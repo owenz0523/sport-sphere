@@ -22,6 +22,7 @@ function Dashboard(filter) {
                 return(
                     <div key={game?.id}>
                         <h2>{game?.name}</h2>
+                        <p>Game Clock: Period {game.status['period']}: {game.status['displayClock']}</p>
                         <p>Home Team: {game?.home_team} -- Score: {game?.home_score}</p>
                         <p>Record {game?.ht_record}</p>
                         <p>Away Team: {game?.away_team} -- Score: {game?.away_score}</p>
