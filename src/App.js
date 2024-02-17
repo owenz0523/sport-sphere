@@ -24,7 +24,7 @@ function App() {
                     })
                     .then((res) => {
                         var userinfo = JSON.stringify(res.data);
-                        postData(res.data);
+                        postData(userinfo);
                         setProfile(res.data);
 
 
@@ -47,7 +47,7 @@ function App() {
       axios.post(address, data)
          .then((response) => {
             // Handle the successful response here
-            console.log('POST request successful:', response.data);
+            console.log('POST request successful:', data, response.data);
         })
         .catch((error) => {
             // Handle any errors that occurred during the POST request

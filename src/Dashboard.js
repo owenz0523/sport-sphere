@@ -6,7 +6,13 @@ function Dashboard(filter) {
     const [games, setGames] = useState([]);
 
     useEffect(() => {
-        axios.get('http://localhost:8000/api/get-nhl')
+        axios.get('http://localhost:8000/api/get-nhl',
+        {
+            params:{
+                followed: "True",
+            }
+
+        })
             .then(response => {
                 //console.log(response.data);
                 setGames(response.data);
@@ -18,7 +24,7 @@ function Dashboard(filter) {
         <div>
             <h1>Game Dashboard</h1>
             {games.map((game) => {
-                console.log(game.status)
+                //console.log(game.status)
                 return(
                     <div key={game?.id}>
                         <h2>{game?.name}</h2>
