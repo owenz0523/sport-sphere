@@ -1,4 +1,4 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseNotAllowed, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login
 from .models import * # Import the UserInfo model from your Django app
@@ -8,22 +8,44 @@ import requests
 from django.utils.crypto import get_random_string
 import secrets
 
+@csrf_exempt
 def add_fav(request):
-    team = request.GET.get('team')
-    user = userteams.objects.get(email="jyan00017@gmail.com")
-    followed = user.followedteams
+    if request.method == "PUT":
+        #team = request.GET.get('team')
+        token = request.headers.get('Authorization', '').split(' ')[1]
+        team_name = json.loads(request.body)['name']
 
-    if team in followed:
-        return JsonResponse({'error': team  + ' is already in your favourites'}, status=300)
+        #(token)
+        #print(team_name)
 
-    user.followedteams.append(team)
-    user.save()
-    return JsonResponse({'success': team + ' successfully added to favourites'}, status=200)
+        session_token = APIToken.objects.get(token=token)
+
+        user = session_token.user
+        #print(user)
+        followed = user.followedteams
+
+        if followed == None:
+            user.followedteams = [team_name]
+            user.save()
+            return JsonResponse({'success': team_name + ' successfully added to favourites'}, status=200)
+
+        if team_name in followed:
+            return JsonResponse({'error': team_name  + ' is already in your favourites'}, status=300)
+
+        user.followedteams.append(team_name)
+        user.save()
+        return JsonResponse({'success': team_name + ' successfully added to favourites'}, status=200)
+    else:
+        return HttpResponse("Invalid HTTP Protocol", status=403)
+
 
 
 def get_follow(request):
     # Get a list of all followed teams from DB
-    user = userteams.objects.get(email="jyan00017@gmail.com")
+    token = request.GET.get('Authorization').split(' ')[1]
+    #("second" + token)
+    user = APIToken.objects.get(token=token).user_id
+    user = userinfo.objects.get(user_id = user)
     data = {
         'teams':user.followedteams,
         'players':user.followplayers
@@ -33,14 +55,25 @@ def get_follow(request):
 
 def get_nhl(request):
     follow = request.GET.get('followed')
-    
-    if follow == "False":
+    print(follow)
+    token = request.headers.get('Authorization', '').split(' ')[1]
+    #print("first" + token)
+
+    url = "http://localhost:8000/api/get-follow"
+    headers = {
+        'Authorization': f'Bearer {token}',
+        'Accept': 'application/json',
+    }
+
+    if follow == "false":
         follow = False
     else :
         follow = True
 
-    followed = requests.get("http://localhost:8000/api/get-follow")
+    followed = requests.get(url, headers)
     teams = followed.json()['teams']
+    if teams == None and follow == True:
+        return JsonResponse({}, status=200)
     games = []
     # Make a GET request to the ESPN API endpoint
 
@@ -54,7 +87,7 @@ def get_nhl(request):
 
     for i in range(len(links)):
         url = links[i]
-        print(links[i])
+        #print(links[i])
         response = requests.get(url)
 
         # Check if the request was successful
@@ -79,7 +112,7 @@ def get_nhl(request):
                 away_team = game['competitions'][0]['competitors'][1]['team']['displayName']
                 
                 if follow:
-                    print("ran follow is true")
+                    #print("ran follow is true")
                     if (home_team in teams) or (away_team in teams):
                         home_score = game['competitions'][0]['competitors'][0]['score']
                         away_score = game['competitions'][0]['competitors'][1]['score']
@@ -98,7 +131,7 @@ def get_nhl(request):
 
                     })
                 else:
-                    print ("ran follow is false")
+                    #print ("ran follow is false")
                     home_score = game['competitions'][0]['competitors'][0]['score']
                     away_score = game['competitions'][0]['competitors'][1]['score']
                     home_team_record = game['competitions'][0]['competitors'][0]['records'][0]['summary']
@@ -145,7 +178,7 @@ def google_login(request):
             if response.status_code == 200:
                 user_info = response.json()
                 print(sendToDB(user_info))
-                print(user_info)
+                #print(user_info)
 
                 user_token = generate_secure_token()
                 user_info['token'] = user_token
@@ -153,7 +186,7 @@ def google_login(request):
                 user = userinfo.objects.get(email=user_info['email'])
 
                 login(request, user)
-                create_api_token(user, token)
+                create_api_token(user, user_token)
             else:
                 print(f"Error: {response.status_code}")
 
@@ -180,32 +213,23 @@ def sendToDB(data):
     
 
 def newEntry(data):
-    print("ran newEntry")
+    #print("ran newEntry")
     newEntry = userinfo(
         email=data['email'],
         password='',
         name=data['name'],
         created_at=timezone.now(),  # Use timezone.now() to get the current timestamp
-        last_login=None  # Optionally, set last_login to None if needed
+        last_login=None, # Optionally, set last_login to None if needed
+        followedteams = None,
+        followplayers = None
     )
 
     # Save the new entry to the database
     newEntry.save()
 
-    existingUser = userinfo.objects.filter(email=data['email']).first()
-    
-    print("new user")
-    followedTeams = userteams(
-         user = existingUser,
-         email = data['email'],
-         followedteams = [],
-         followplayers = []
-    )
-
-    followedTeams.save()
-
 def create_api_token(user, token):
-    api_token = APIToken.objects.create(user=user, token=token, user_id=1)
+    user_id = user.user_id
+    api_token = APIToken.objects.create(user=user, token=token, user_id=user_id)
     return api_token
 
 
