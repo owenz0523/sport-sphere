@@ -1,80 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { googleLogout, useGoogleLogin } from '@react-oauth/google';
-import axios from 'axios';
-import Dashboard from './Dashboard'; // Import Dashboard component
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate } from 'react-router-dom';
+import SignInPage from './SignInPage';
+import Dashboard from './Dashboard';
 
 function App() {
-    const [ user, setUser ] = useState([]);
-    const [ profile, setProfile ] = useState([]);
+    const [userProfile, setUserProfile] = useState(null);
 
-    const login = useGoogleLogin({
-        onSuccess: (codeResponse) => setUser(codeResponse),
-        onError: (error) => console.log('Login Failed:', error)
-    });
-
-    useEffect(
-        () => {
-            if (user) {
-                axios
-                    .get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${user.access_token}`, {
-                        headers: {
-                            Authorization: `Bearer ${user.access_token}`,
-                            Accept: 'application/json'
-                        }
-                    })
-                    .then((res) => {
-                        var userinfo = JSON.stringify(res.data);
-                        postData(userinfo);
-                        setProfile(res.data);
-
-
-                    })
-                    .catch((err) => console.log(err));
-            }
-        },
-        [ user ]
-    );
-
-    // log out function to log the user out of google and set the profile array to null
-    const logOut = () => {
-        googleLogout();
-        setProfile(null);
+    const handleSignIn = (profile) => {
+        // Save the user profile data in state
+        setUserProfile(profile);
+        // Redirect to the dashboard
     };
 
-    //used to post user data to DJANGO
-    function postData (data){
-      const address = "http://localhost:8000/api/google-login"
-      axios.post(address, data)
-         .then((response) => {
-            // Handle the successful response here
-            console.log('POST request successful:', data, response.data);
-        })
-        .catch((error) => {
-            // Handle any errors that occurred during the POST request
-            console.error('Error making POST request:', error);
-        });
-    }
-
     return (
-        <div>
-            <h2>React Google Login</h2>
-            <br />
-            <br />
-            {profile ? (
-                <div>
-                    <img src={profile.picture} alt="user image" />
-                    <h3>User Logged in</h3>
-                    <p>Name: {profile.name}</p>
-                    <p>Email Address: {profile.email}</p>
-                    <Dashboard></Dashboard>
-                    <br />
-                    <br />
-                    <button onClick={logOut}>Log out</button>
-                </div>
-            ) : (
-                <button onClick={() => login()}>Sign in with Google 🚀 </button>
-            )}
-        </div>
+        <Router>
+            <Routes>
+                <Route path="/signin" element={<SignInPage onSignIn={handleSignIn} />} />
+                <Route path="/dashboard" element={userProfile ? <Dashboard userProfile={userProfile} /> : <Navigate replace to="/signin" />} />
+                <Route path="*" element={<Navigate replace to="/signin" />} />
+            </Routes>
+        </Router>
     );
 }
+
 export default App;

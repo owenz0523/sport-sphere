@@ -1,9 +1,12 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import authenticate, login
 from .models import * # Import the UserInfo model from your Django app
 from django.utils import timezone
 import json
 import requests
+from django.utils.crypto import get_random_string
+import secrets
 
 def add_fav(request):
     team = request.GET.get('team')
@@ -128,16 +131,38 @@ def google_login(request):
         try:
             #print("ran here")
             # Parse the JSON data sent from the React frontend
-            data = json.loads(request.body.decode('utf-8'))
 
-            # Process the user data
-            sendToDB(data)
+            data = json.loads(request.body)  # Now using json.loads to parse the request body
+            token = data.get('token')
+            url = f'https://www.googleapis.com/oauth2/v1/userinfo?access_token={token}'
+            headers = {
+                'Authorization': f'Bearer {token}',
+                'Accept': 'application/json',
+            }
+
+            response = requests.get(url, headers=headers)
+
+            if response.status_code == 200:
+                user_info = response.json()
+                print(sendToDB(user_info))
+                print(user_info)
+
+                user_token = generate_secure_token()
+                user_info['token'] = user_token
+
+                user = userinfo.objects.get(email=user_info['email'])
+
+                login(request, user)
+                create_api_token(user, token)
+            else:
+                print(f"Error: {response.status_code}")
+
 
             # You can save it to the database, perform authentication, etc.
             
             # Respond with a JSON response (optional)
-            response_data = {'message': 'Data received and processed successfully'}
-            return JsonResponse(response_data, status=200)
+            response_data = {'token': 'Data received and processed successfully'}
+            return JsonResponse(user_info, status=200)
         except json.JSONDecodeError as e:
             return JsonResponse({'error': 'Invalid JSON data'}, status=400)
     else:
@@ -169,11 +194,22 @@ def newEntry(data):
 
     existingUser = userinfo.objects.filter(email=data['email']).first()
     
+    print("new user")
     followedTeams = userteams(
          user = existingUser,
          email = data['email'],
-         followedteams = None,
-         followplayers = None
+         followedteams = [],
+         followplayers = []
     )
 
     followedTeams.save()
+
+def create_api_token(user, token):
+    api_token = APIToken.objects.create(user=user, token=token, user_id=1)
+    return api_token
+
+
+def generate_secure_token():
+    token_secrets = secrets.token_urlsafe(32)  # Adjust length as needed
+    
+    return token_secrets

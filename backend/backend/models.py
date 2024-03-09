@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
+from django.conf import settings
 
+    
 class userinfo(models.Model):
     user_id = models.AutoField(primary_key=True)
     email = models.EmailField(unique=True, max_length=50)
@@ -26,3 +28,9 @@ class userteams(models.Model):
 
     def __str__(self):
         return self.user
+
+    
+class APIToken(models.Model):
+    user = models.ForeignKey(userinfo, on_delete=models.CASCADE)
+    token = models.CharField(max_length=255, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
