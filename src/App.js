@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate } from 'react-router-dom';
+import { googleLogout } from '@react-oauth/google';
 import SignInPage from './SignInPage';
 import Dashboard from './Dashboard';
 
 function App() {
     const [userProfile, setUserProfile] = useState(null);
-
+    
     const handleSignIn = (profile) => {
         // Save the user profile data in state
         setUserProfile(profile);

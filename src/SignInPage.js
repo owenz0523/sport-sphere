@@ -2,6 +2,7 @@ import React from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import './App.css'
 
 const SignInPage = ({ onSignIn }) => {
     const navigate = useNavigate(); // Hook for navigation
@@ -22,7 +23,7 @@ const SignInPage = ({ onSignIn }) => {
     return (
         <div>
             <h2>Sign In with Google</h2>
-            <button onClick={() => login()}>Sign in with Google 🚀</button>
+            <button className="button" onClick={() => login()}>Sign in with Google 🚀</button>
         </div>
     );
 };

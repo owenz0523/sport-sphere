@@ -1,10 +1,21 @@
 // Dashboard.js
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate } from 'react-router-dom';
+import { googleLogout } from '@react-oauth/google';
 import axios from 'axios';
+import './App.css'
 
 function Dashboard(userProfile) {
+    
     const [games, setGames] = useState([]);
     const [followed, setFollow] = useState(false);
+    const navigate = useNavigate(); // Hook for navigation
+
+
+    const logOut = () => {
+        googleLogout();
+        navigate('/signin')
+    };
 
     const toggleFollow = () => {
         setFollow(current => !current);
@@ -57,17 +68,29 @@ function Dashboard(userProfile) {
 
     return (
         <div>
+            <div className="container">
+                <div className="user-info">
+                        <img src={userProfile.userProfile.picture} alt="user image" />
+                        <h3>User Logged in</h3>
+                        <p>Name: {userProfile.userProfile.name}</p>
+                        <p>Email Address: {userProfile.userProfile.email}</p>
+                        <br />
+                        <br />
+                        <button className="button logout-button" onClick={() => logOut()}>Log out</button>
+                </div>
+            </div>
             <h1>Game Dashboard</h1>
+                <div>
+                    <p>You are {followed ? 'currently' : 'not'} following.</p>
+                    <button onClick={toggleFollow}>
+                        {followed ? 'Unfollow' : 'Follow'}
+                    </button>
+                </div>
             {games.map((game) => {
                 //console.log(game.status)
                 return(
                     <div key={game?.id}>
-                        <div>
-                            <p>You are {followed ? 'currently' : 'not'} following.</p>
-                            <button onClick={toggleFollow}>
-                                {followed ? 'Unfollow' : 'Follow'}
-                            </button>
-                        </div>
+                        
                         <h2>{game?.name}</h2>
                         <p>Game Clock: Period {game.status['period']}: {game.status['displayClock']}</p>
                         <p>Home Team: {game?.home_team} -- Score: {game?.home_score}</p>
@@ -78,6 +101,7 @@ function Dashboard(userProfile) {
                     </div>
                 )
             })}
+        
         </div>
     );
 }
