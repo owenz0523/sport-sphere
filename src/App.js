@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { googleLogout, useGoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 import Dashboard from './Dashboard'; // Import Dashboard component
+import './App.css';
 
 function App() {
     const [ user, setUser ] = useState([]);
@@ -56,23 +57,25 @@ function App() {
     }
 
     return (
-        <div>
-            <h2>React Google Login</h2>
+        <div className="container">
+            <h2>User Login</h2>
             <br />
             <br />
             {profile ? (
                 <div>
-                    <img src={profile.picture} alt="user image" />
-                    <h3>User Logged in</h3>
-                    <p>Name: {profile.name}</p>
-                    <p>Email Address: {profile.email}</p>
+                    <div className="user-info">
+                        <img src={profile.picture} alt="user image" />
+                        <h3>User Logged in</h3>
+                        <p>Name: {profile.name}</p>
+                        <p>Email Address: {profile.email}</p>
+                        <br />
+                        <br />
+                        <button className="button logout-button" onClick={logOut}>Log out</button>
+                    </div>
                     <Dashboard></Dashboard>
-                    <br />
-                    <br />
-                    <button onClick={logOut}>Log out</button>
                 </div>
             ) : (
-                <button onClick={() => login()}>Sign in with Google 🚀 </button>
+                <button className="button" onClick={() => login()}>Sign in with Google 🚀 </button>
             )}
         </div>
     );
