@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate, useNavigate } from 'r
 import { googleLogout } from '@react-oauth/google';
 import axios from 'axios';
 import './App.css'
+import SearchBar from './addTeam.js'
 
 function Dashboard(userProfile) {
     
@@ -20,6 +21,7 @@ function Dashboard(userProfile) {
     const toggleFollow = () => {
         setFollow(current => !current);
       };
+
 
     useEffect(() => {
         axios.get('http://localhost:8000/api/get-nhl',
@@ -45,10 +47,10 @@ function Dashboard(userProfile) {
             .catch(error => console.error('Error fetching data:', error));
     }, [followed]);
 
-    const updateTeam = async (teamName) => {
+    const addTeam = async (teamName) => {
         const url = 'http://localhost:8000/api/add-fav'; // Your API endpoint
         const sessionToken = userProfile.userProfile.token; // The session token you have
-        console.log(userProfile.userProfile.token);
+        //console.log(userProfile.userProfile.token);
 
         try {
           const response = await axios.put(url, {
@@ -85,6 +87,11 @@ function Dashboard(userProfile) {
                     <button onClick={toggleFollow}>
                         {followed ? 'Unfollow' : 'Follow'}
                     </button>
+                </div>
+                <div>
+                    <h1>Search</h1>
+                    <SearchBar onSearch={addTeam} />
+                    {/* Display search results or additional content here */}
                 </div>
             {games.map((game) => {
                 //console.log(game.status)

@@ -12,6 +12,7 @@ import secrets
 def add_fav(request):
     if request.method == "PUT":
         #team = request.GET.get('team')
+        #print(request.headers.get('Authorization', ''))
         token = request.headers.get('Authorization', '').split(' ')[1]
         team_name = json.loads(request.body)['name']
 
@@ -55,7 +56,7 @@ def get_follow(request):
 
 def get_nhl(request):
     follow = request.GET.get('followed')
-    print(follow)
+    #print(follow)
     token = request.headers.get('Authorization', '').split(' ')[1]
     #print("first" + token)
 
@@ -116,14 +117,14 @@ def get_nhl(request):
                     if (home_team in teams) or (away_team in teams):
                         home_score = game['competitions'][0]['competitors'][0]['score']
                         away_score = game['competitions'][0]['competitors'][1]['score']
-                        home_team_record = game['competitions'][0]['competitors'][0]['records'][0]['summary']
-                        away_team_record = game['competitions'][0]['competitors'][1]['records'][0]['summary']
+                        #home_team_record = game['competitions'][0]['competitors'][0]['records'][0]['summary']
+                        #away_team_record = game['competitions'][0]['competitors'][1]['records'][0]['summary']
                         games.append({
                             'name' : name,
                             'short_name' : short_name,
                             'status' : status,
-                            'ht_record' : home_team_record,
-                            'at_record' : away_team_record,
+                            #'ht_record' : home_team_record,
+                            #'at_record' : away_team_record,
                             'home_team': home_team,
                             'away_team': away_team,
                             'home_score': home_score,
@@ -134,14 +135,14 @@ def get_nhl(request):
                     #print ("ran follow is false")
                     home_score = game['competitions'][0]['competitors'][0]['score']
                     away_score = game['competitions'][0]['competitors'][1]['score']
-                    home_team_record = game['competitions'][0]['competitors'][0]['records'][0]['summary']
-                    away_team_record = game['competitions'][0]['competitors'][1]['records'][0]['summary']
+                    #home_team_record = game['competitions'][0]['competitors'][0]['records'][0]['summary']
+                    #away_team_record = game['competitions'][0]['competitors'][1]['records'][0]['summary']
                     games.append({
                         'name' : name,
                         'short_name' : short_name,
                         'status' : status,
-                        'ht_record' : home_team_record,
-                        'at_record' : away_team_record,
+                        #'ht_record' : home_team_record,
+                        #'at_record' : away_team_record,
                         'home_team': home_team,
                         'away_team': away_team,
                         'home_score': home_score,
@@ -177,7 +178,7 @@ def google_login(request):
 
             if response.status_code == 200:
                 user_info = response.json()
-                print(sendToDB(user_info))
+                #print(sendToDB(user_info))
                 #print(user_info)
 
                 user_token = generate_secure_token()
