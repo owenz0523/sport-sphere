@@ -17,5 +17,5 @@ Score-Sphere is a full-stack web application to display personalized real-time g
 [`POST /api/google-login`](#google-login): Receives log-in data from Google Log-in\
 [`GET /api/get-nhl`](#get-nhl): Gets sports data from various sports\
 [`PUT /api/add-fav`](#add-fav): Add team to user's favourites \
-[`GET /get-follow`](#get-follow): Gets all followed teams for user dashboard \
+[`GET /get-follow`](#get-follow): Gets all followed teams for user dashboard 
 
